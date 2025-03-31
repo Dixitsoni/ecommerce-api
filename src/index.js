@@ -23,6 +23,10 @@ app.use("/images", express.static(path.join(__dirname, "/images")));
 app.use(authRouter)
 app.use(productRouter)
 
+app.get('/',(req,res)=>{
+  res.send('welcome to my api')
+})
+
 
 app.listen(8080, () => {
   console.log(`server is running on port 8080`);
