@@ -26,7 +26,7 @@ authRouter.post("/login", async (req, res) => {
     return res.status(400).json({ message: "Invalid credentials" });
   }
 
-  res.status(200).json({ message: "Login successful!", token: authToken(getUser._id) });
+  res.status(200).json({ message: "Login successful!", token: authToken(getUser._id), userId: getUser._id });
 });
 
 authRouter.get("/customer", async (req, res) => {
