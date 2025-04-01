@@ -60,49 +60,6 @@ productRouter.delete("/product/:id", verifyToken, async (req, res) => {
   return res.status(400).json({ message: "Product not found" });
 });
 
-productRouter.put("/cart/:id", async (req, res) => {
-  const { id } = req.params;
-  if (id) {
-    await ProductModel.findByIdAndUpdate(id, { cart: true }, {
-      new: true,
-    });
-    return res.status(200).json({ message: "Product is added to your cart" });
-  }
-  return res.status(400).json({ message: "Product not found" });
-});
-
-productRouter.delete("/cart/:id", async (req, res) => {
-  const { id } = req.params;
-  if (id) {
-    await ProductModel.findByIdAndUpdate(id, { cart: false }, {
-      new: true,
-    });
-    return res.status(200).json({ message: "Product removed from your cart" });
-  }
-  return res.status(400).json({ message: "Product not found" });
-});
-
-productRouter.put("/wishlist/:id", async (req, res) => {
-  const { id } = req.params;
-  if (id) {
-    await ProductModel.findByIdAndUpdate(id, { wishlist: true }, {
-      new: true,
-    });
-    return res.status(200).json({ message: "Product is added to your wishlist" });
-  }
-  return res.status(400).json({ message: "Product not found" });
-});
-
-productRouter.delete("/wishlist/:id", async (req, res) => {
-  const { id } = req.params;
-  if (id) {
-    await ProductModel.findByIdAndUpdate(id, { wishlist: false }, {
-      new: true,
-    });
-    return res.status(200).json({ message: "Product removed from your cart" });
-  }
-  return res.status(400).json({ message: "Product not found" });
-});
 
 
 module.exports = productRouter;

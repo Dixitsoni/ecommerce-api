@@ -6,8 +6,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "phone is required"],
   },
-  otp: {
+  id: {
     type: String,
+    required: true
   },
   createdAt: {
     type: Date,

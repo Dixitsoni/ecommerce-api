@@ -15,19 +15,27 @@ app.use(cors());
 // const multer = require("multer");
 // const path = require("path");
 app.get('/', (req, res) => {
-  res.send('welcome to my api')
+    res.send('welcome to my api')
 })
-const db = require('./src/db/db')
+const db = require('./src/db/db');
+const cartRouter = require("./src/routes/cartController");
+const orderRouter = require("./src/routes/orderController");
+const wishlistRouter = require("./src/routes/wishlistController");
+const requestProductrRouter = require("./src/routes/requestProductController");
 db()
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/images", express.static(path.join(__dirname, "/images")));
+
 app.use(authRouter)
 app.use(productRouter)
-
+app.use(cartRouter)
+app.use(orderRouter)
+app.use(wishlistRouter)
+app.use(requestProductrRouter)
 
 
 
 app.listen(8080, () => {
-  console.log(`server is running on port 8080`);
+    console.log(`server is running on port 8080`);
 });

@@ -4,10 +4,13 @@ const { authToken } = require("../middlewares/auth");
 const authRouter = express.Router();
 
 authRouter.post("/register", async (req, res) => {
-  const { phone, otp } = req.body;
+  const { phone } = req.body;
+  const id = Math.floor(100000 + Math.random() * 900000);
+  const salt = await bcrypt.genSalt(10);  // Salt rounds set to 10
+  const idData = await bcrypt.hash(id, salt)
   const userSave = new UserModel({
     phone,
-    // otp,
+    id: idData,
     createdAt: Date.now(),
     updatedAt: Date.now(),
   });
@@ -50,5 +53,29 @@ authRouter.delete("/customer/:id", async (req, res) => {
   }
   return res.status(400).json({ message: "user not found" });
 });
+
+authRouter.post('/verify-otp', async (req, res) => {
+  const { phone, otp } = req.body;
+
+  if (!phone || !otp) {
+    return res.status(400).json({ message: 'user not found' });
+  }
+  const getUser = await UserModel.findOne({ phone: phone });
+  const expirationTime = Date.now() + 1 * 60 * 1000;
+
+  if (Date.now() > expirationTime) {
+    return res.status(400).json({ message: 'OTP has expired' });
+  }
+
+  let isMatch = await bcrypt.compare(otp, getUser.otp)
+
+  if (isMatch) {
+    return res.status(200).json({ message: 'OTP verified successfully' });
+  } else {
+    return res.status(400).json({ message: 'Invalid OTP' });
+  }
+});
+
+
 
 module.exports = authRouter;

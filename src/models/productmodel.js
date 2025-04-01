@@ -15,24 +15,12 @@ const productSchema = new mongoose.Schema({
     required: [true, "product image is required"],
   },
   price: {
-    type: String,
+    type: Number,
     required: [true, "product price is required"],
   },
   category: {
     type: String,
     required: [true, "product category is required"],
-  },
-  quantity: {
-    type: Number,
-    required: [true, "product quantity is required"],
-  },
-  cart: {
-    type: Boolean,
-    default: false
-  },
-  wishlist: {
-    type: Boolean,
-    default: false
   },
   location: {
     type: String,
