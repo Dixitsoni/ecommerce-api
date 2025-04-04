@@ -80,7 +80,6 @@ cartRouter.put('/cart/:userId/quantity', async (req, res) => {
 cartRouter.delete('/cart/:userId/product', async (req, res) => {
     const { userId } = req.params;
     const { productId } = req.body;
-
     try {
         const cart = await Cart.findOne({ userId });
         if (!cart) return res.status(404).json({ message: 'Cart not found' });
@@ -90,7 +89,7 @@ cartRouter.delete('/cart/:userId/product', async (req, res) => {
         );
 
         if (productIndex !== -1) {
-            cart.products.splice(productIndex, 1);
+            cart.products.splice(productIndex, 1);  
             await cart.save();
             return res.status(200).json({ message: 'Product removed from cart', cart });
         } else {

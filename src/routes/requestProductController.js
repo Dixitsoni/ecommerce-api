@@ -1,5 +1,4 @@
 const express = require('express');
-const Order = require("../models/orderModel");
 const RequestProductModel = require('../models/requestProductModel');
 const requestProductrRouter = express.Router();
 
@@ -14,13 +13,21 @@ requestProductrRouter.post('/requestProduct', async (req, res) => {
     }
 });
 
+requestProductrRouter.put('/requestProduct/:userId', async (req, res) => {
+    try {
+        await RequestProductModel.findByIdAndUpdate({ userId: req.params.userId }, req.body, { new: true });
+        res.status(200).json({ message: 'message updated customer query' });
+    } catch (err) {
+        console.log(err)
+    }
+});
+
 // Get order details
 requestProductrRouter.get('/requestProduct/:userId', async (req, res) => {
     const { userId } = req.params;
-
     try {
-        const orders = await Order.find({ userId }).populate('products.productId');
-        res.status(200).json(orders);
+        const request = await RequestProductModel.find({ userId });
+        res.status(200).json(request);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
