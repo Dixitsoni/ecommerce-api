@@ -8,11 +8,8 @@ authRouter.post("/register", async (req, res) => {
   const { phone } = req.body;
   const id = Math.floor(100000 + Math.random() * 900000);
   const salt = await bcrypt.genSalt(10);  // Salt rounds set to 10
-  const idData = await bcrypt.hash(id, salt)
-  const userSave = new UserModel({
-    phone,
-    id: idData,
-  });
+  // const idData = await bcrypt.hash(id, salt)
+  const userSave = new UserModel(res.body);
   await userSave.save();
   res.status(201).json({ message: "User registered successfully!" });
 });
