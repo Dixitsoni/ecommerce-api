@@ -5,10 +5,13 @@ const authRouter = express.Router();
 const bcrypt = require("bcryptjs");
 
 authRouter.post("/register", async (req, res) => {
-  const { phone } = req.body
-  const userSave = new UserModel(res.body);
-  await userSave.save();
-  res.status(201).json({ message: "User registered successfully!" });
+  const userSave = new UserModel(req.body);
+  let userSaved = await userSave.save();
+  if (userSaved) {
+    res.status(201).json({ message: "User created successfully", user: userSaved })
+  } else {
+    res.status(400).json({ message: "Error creating user", user: userSaved })
+  }
 });
 
 authRouter.post("/login", async (req, res) => {
