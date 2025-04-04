@@ -12,8 +12,6 @@ authRouter.post("/register", async (req, res) => {
   const userSave = new UserModel({
     phone,
     id: idData,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
   });
   await userSave.save();
   res.status(201).json({ message: "User registered successfully!" });
