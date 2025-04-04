@@ -35,6 +35,6 @@ const requestProductModel = new mongoose.Schema({
     }
 });
 
-const RequestProductModel = mongoose.model("Requestproduct", requestProductModel);
+const RequestProductModel = mongoose.model("Request", requestProductModel);
 
 module.exports = RequestProductModel;

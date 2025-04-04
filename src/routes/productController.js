@@ -13,8 +13,8 @@ productRouter.get("/product", async (req, res) => {
   const { category, location } = req.query;
   if (category || location) {
     const products = await ProductModel.find({
-      category: category,
-      location: location,
+      category: category ? category : '',
+      location: location ? location : '',
     });
     return res.status(200).json({ data: products });
   }
