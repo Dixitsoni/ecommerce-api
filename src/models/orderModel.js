@@ -10,6 +10,7 @@ const orderSchema = new mongoose.Schema({
     }
   ],
   totalAmount: { type: Number, required: true },
+  shippingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shipping' },
   status: { type: String, default: 'Pending' },
   createdAt: { type: Date, default: Date.now }
 });

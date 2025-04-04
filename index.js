@@ -22,6 +22,7 @@ const cartRouter = require("./src/routes/cartController");
 const orderRouter = require("./src/routes/orderController");
 const wishlistRouter = require("./src/routes/wishlistController");
 const requestProductrRouter = require("./src/routes/requestProductController");
+const shippingRouter = require("./src/routes/shippingController");
 db()
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,7 +34,7 @@ app.use(cartRouter)
 app.use(orderRouter)
 app.use(wishlistRouter)
 app.use(requestProductrRouter)
-
+app.use(shippingRouter)
 
 
 app.listen(8080, () => {
