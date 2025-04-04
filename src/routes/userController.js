@@ -2,6 +2,7 @@ const express = require("express");
 const UserModel = require("../models/usermodel");
 const { authToken } = require("../middlewares/auth");
 const authRouter = express.Router();
+const bcrypt = require("bcryptjs");
 
 authRouter.post("/register", async (req, res) => {
   const { phone } = req.body;
