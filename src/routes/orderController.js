@@ -1,26 +1,34 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Order = require("../models/orderModel");
 const Cart = require('../models/cartModel');
-const Product = require('../models/productmodel');
-const orderRouter = express.Router();
+const Product = require('../models/productmodel++');
 const Shipping = require("../models/shippingModel");
 
+const orderRouter = express.Router();
 
+// Place an Order
 orderRouter.post('/placeorder', async (req, res) => {
-    const { userId, shippingAddress } = req.body;
+    const { userId } = req.body;
+
+    // Start a transaction session
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     try {
-        const cart = await Cart.findOne({ userId }).populate('products.productId');
+        const cart = await Cart.findOne({ userId }).populate('products.productId').session(session);
         if (!cart || cart.products.length === 0) {
             return res.status(400).json({ message: 'Cart is empty' });
         }
 
         let totalAmount = 0;
         const orderProducts = [];
+        const bulkUpdates = [];
 
         for (const item of cart.products) {
             const product = item.productId;
             if (!product || product.stock < item.quantity) {
+                await session.abortTransaction();
                 return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
             }
 
@@ -30,70 +38,70 @@ orderRouter.post('/placeorder', async (req, res) => {
                 quantity: item.quantity,
                 price: product.price
             });
-        }
 
-        // Deduct stock
-        for (const item of cart.products) {
-            await Product.findByIdAndUpdate(item.productId._id, {
-                $inc: { stock: -item.quantity }
+            // Prepare bulk update to reduce stock
+            bulkUpdates.push({
+                updateOne: {
+                    filter: { _id: product._id },
+                    update: { $inc: { stock: -item.quantity } }
+                }
             });
         }
 
-        // Create order
-        const order = new Order({
-            userId,
-            products: orderProducts,
-            totalAmount
-        });
+        // Perform bulk stock update
+        if (bulkUpdates.length > 0) {
+            await Product.bulkWrite(bulkUpdates, { session });
+        }
 
-        await order.save();
+        // Create and save the order
+        const order = await Order.create([{ userId, products: orderProducts, totalAmount }], { session });
 
-        // Create shipping entry
-        const shipping = new Shi({
-            orderId: order._id,
-            userId,
-            ...shippingAddress
-        });
+        // Clear user's cart
+        await Cart.updateOne({ userId }, { $set: { products: [] } }, { session });
 
-        await shipping.save();
+        // Commit transaction
+        await session.commitTransaction();
+        session.endSession();
 
-        // Link shipping to order
-        order.shippingId = shipping._id;
-        await order.save();
-
-        cart.products = [];
-        await cart.save();
-
-        res.status(200).json({ message: 'Order placed successfully', order });
+        res.status(201).json({ message: 'Order placed successfully', order: order[0] });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        await session.abortTransaction();
+        session.endSession();
+        res.status(500).json({ message: `Order placement failed: ${error.message}` });
     }
 });
 
-
-// Get order details
+// Get orders for a user
 orderRouter.get('/order/:userId', async (req, res) => {
-    const { userId } = req.params;
-
     try {
-        const orders = await Order.find({ userId }).populate('products.productId');
+        const orders = await Order.find({ userId: req.params.userId })
+            .populate('products.productId');
+
+        if (!orders.length) {
+            return res.status(404).json({ message: "No orders found for this user." });
+        }
+
         res.status(200).json(orders);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: `Error fetching orders: ${error.message}` });
     }
 });
 
+// Admin: Get all orders with shipping details
 orderRouter.get('/admin/orders', async (req, res) => {
     try {
         const orders = await Order.find()
             .populate('products.productId')
-            .populate('shippingId'); // Get shipping details
+            .populate('shippingId'); // Fetch linked shipping info
+
+        if (!orders.length) {
+            return res.status(404).json({ message: "No orders found." });
+        }
 
         res.status(200).json(orders);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: `Error fetching admin orders: ${error.message}` });
     }
 });
-
 
 module.exports = orderRouter;

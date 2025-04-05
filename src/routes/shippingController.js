@@ -36,8 +36,8 @@ shippingRouter.post('/createshipping', async (req, res) => {
 
 shippingRouter.get('/shipping/:userId', async (req, res) => {
     try {
-        const order = await Shipping.findById({ userId: req.params.userId });
-        const getUserByOrder = await Order.findById({ userId: req.params.userId })
+        const order = await Shipping.find({ userId: req.params.userId });
+        const getUserByOrder = await Order.find({ userId: req.params.userId })
         if (!order) {
             return res.status(400).json({ message: "Order not found" });
         }
@@ -48,7 +48,7 @@ shippingRouter.get('/shipping/:userId', async (req, res) => {
             return res.status(400).json({ message: "user not found" });
         }
 
-        res.status(200).json({ message: "Shipping details added", details: { order: order, shipping: getUserByOrder } });
+        res.status(200).json({ details: { order: order, shipping: getUserByOrder } });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
